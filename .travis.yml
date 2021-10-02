@@ -1,0 +1,18 @@
+sudo: required
+services:
+  - docker
+before_install:
+  - docker build -t manujapanday/complex -f ./client/Dockerfile.dev
+script:
+  - docker run manujapanday/complex npm test -- --coverage
+after_success:
+  - docker build -t manujapanday/multi-client ./client
+  - docker build -t manujapanday/multi-nginx ./nginx
+  - docker build -t manujapanday/multi-server ./server
+  - docker build -t manujapanday/multi-worker ./worker
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+
+  - docker push manujapanday/multi-client
+  - docker push manujapanday/multi-nginx
+  - docker push manujapanday/multi-server
+  - docker push manujapanday/multi-worker
